@@ -19,47 +19,83 @@ class TechnicalController extends Controller
 
         $subServices = $request->input('SubServices');
         $u = TechnicalUsers::latest()->first();
-        foreach($subServices as $s){
-            $sub = SubServices::where('title',$s)->first();
+        if($u == null){
+            $u = 1;
+            foreach($subServices as $s){
+                $sub = SubServices::where('title',$s)->first();
 
-            TechnicalUserSubServices::create([
+                TechnicalUserSubServices::create([
 
-                'id' => $u->id+1,
-                'sub_service_id' => $sub->id
+                    'id' => $u,
+                    'sub_service_id' => $sub->id
 
+                ]);
+
+            }
+
+
+            $user = TechnicalUsers::create([
+                'name'=>$request->input('name'),
+                'phoneNumber'=>$request->input('phoneNumber'),
+                'password'=>$request->input('password'),
+                'city'=>$request->input('city'),
+                'mainService'=>$request->input('mainService'),
+                'subServicesList'=>$u,
+                'bankName'=>$request->input('bankName'),
+                'statementNumber'=>$request->input('statementNumber'),
+                'address'=>$request->input('address'),
+                'address_latitude'=>$request->input('address_latitude'),
+                'address_longitude'=>$request->input('address_longitude'),
+                'profileImage'=>$request->input("profileImage"),
+                'residenceImage'=>$request->input("residenceImage"),
+                'Approved'=>false
             ]);
 
+            return response($user, Response::HTTP_CREATED);
         }
+        else{
+            foreach($subServices as $s){
+                $sub = SubServices::where('title',$s)->first();
+
+                TechnicalUserSubServices::create([
+
+                    'id' => $u->id+1,
+                    'sub_service_id' => $sub->id
+
+                ]);
+
+            }
 
 
-        $user = TechnicalUsers::create([
-            'name'=>$request->input('name'),
-            'phoneNumber'=>$request->input('phoneNumber'),
-            'password'=>$request->input('password'),
-            'city'=>$request->input('city'),
-            'mainService'=>$request->input('mainService'),
-            'subServicesList'=>$u->id+1,
-            'bankName'=>$request->input('bankName'),
-            'statementNumber'=>$request->input('statementNumber'),
-            'address'=>$request->input('address'),
-            'address_latitude'=>$request->input('address_latitude'),
-            'address_longitude'=>$request->input('address_longitude'),
-            'profileImage'=>$request->input("profileImage"),
-            'residenceImage'=>$request->input("residenceImage"),
-            'Approved'=>false
-        ]);
+            $user = TechnicalUsers::create([
+                'name'=>$request->input('name'),
+                'phoneNumber'=>$request->input('phoneNumber'),
+                'password'=>$request->input('password'),
+                'city'=>$request->input('city'),
+                'mainService'=>$request->input('mainService'),
+                'subServicesList'=>$u->id+1,
+                'bankName'=>$request->input('bankName'),
+                'statementNumber'=>$request->input('statementNumber'),
+                'address'=>$request->input('address'),
+                'address_latitude'=>$request->input('address_latitude'),
+                'address_longitude'=>$request->input('address_longitude'),
+                'profileImage'=>$request->input("profileImage"),
+                'residenceImage'=>$request->input("residenceImage"),
+                'Approved'=>false
+            ]);
 
-        return response($user, Response::HTTP_CREATED);
+            return response($user, Response::HTTP_CREATED);
 
-    }
+        }
+     }
+
 
     public function AllNotApprovedUsers(){
         return response(TechnicalUsers::all()->where('Approved',false));
     }
     public function ApproveUser(Request $request){
-        $user = TechnicalUsers::where('id',$request->input('id'))->first();
+        $user = TechnicalUsers::where('id',$request->input('id'));
         $user->Approved = true;
-
         return response($user);
     }
 }
